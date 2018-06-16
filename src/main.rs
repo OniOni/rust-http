@@ -49,6 +49,43 @@ impl HttpRequest {
     }
 }
 
+struct HttpResponse {
+    // status_code: u8,
+    status_line: String,
+    headers: HashMap<String, String>,
+    body: String
+}
+
+impl HttpResponse {
+
+    fn parse(response: String) -> HttpResponse {
+        let mut lines = response.lines();
+
+        let status_line = lines.next().unwrap();
+
+        let mut headers: HashMap<String, String> = HashMap::new();
+        loop {
+            let line = lines.next().unwrap();
+            if line.len() == 0 {
+                break;
+            }
+
+            let mut split = line.split(':');
+            headers.insert(
+                split.next().unwrap().to_string(),
+                split.next().unwrap().to_string()
+            );
+        }
+
+        let body = lines.next().unwrap();
+
+        return HttpResponse {
+            status_line: status_line.to_string(),
+            headers: headers,
+            body: body.to_string()
+        }
+    }
+}
 
 fn get_cmd() -> String {
     match env::args().nth(1) {
@@ -68,6 +105,11 @@ fn main() {
         let mut buf = String::new();
         let n_read = stream.read_to_string(&mut buf).unwrap();
         println!("{}, {}", buf, n_read);
+
+        let response = HttpResponse::parse(buf);
+        println!("{}", response.status_line);
+        println!("{:?}", response.headers);
+        println!("{}", response.body);
     } else {
         println!("Could not connect to {}", con_str);
     }
