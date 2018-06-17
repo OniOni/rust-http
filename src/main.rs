@@ -87,6 +87,30 @@ impl HttpResponse {
     }
 }
 
+struct HttpClient {
+    host: String,
+    port: String
+}
+
+impl HttpClient {
+
+    fn get(&self, path: &str) -> Result<HttpResponse, String> {
+        let req = HttpRequest::new(String::from("GET ") + path +" HTTP/1.1", "".to_string());
+
+        let constr = String::from("") + &self.host + ":" + &self.port;
+        if let Ok(mut stream) = TcpStream::connect(&constr) {
+            let _ = stream.write(&req.to_u8buf());
+
+            let mut buf = String::new();
+            let _ = stream.read_to_string(&mut buf).unwrap();
+
+            Ok(HttpResponse::parse(buf))
+        } else {
+            Err(String::from("Could not connect to ") + &constr)
+        }
+    }
+}
+
 fn get_cmd() -> String {
     match env::args().nth(1) {
         Some(cmd) => cmd,
@@ -95,22 +119,11 @@ fn get_cmd() -> String {
 }
 
 fn main() {
-    let con_str = "127.0.0.1:8080";
-    let http = HttpRequest::new("GET /response.json HTTP/1.1".to_string(), "".to_string());
+    let client = HttpClient {
+        host: "127.0.0.1".to_string(),
+        port: "8080".to_string()
+    };
+    let res = client.get("/response.json").unwrap();
 
-    let req = http.to_u8buf();
-
-    if let Ok(mut stream) = TcpStream::connect(con_str) {
-        let _ = stream.write(&req);
-        let mut buf = String::new();
-        let n_read = stream.read_to_string(&mut buf).unwrap();
-        println!("{}, {}", buf, n_read);
-
-        let response = HttpResponse::parse(buf);
-        println!("{}", response.status_line);
-        println!("{:?}", response.headers);
-        println!("{}", response.body);
-    } else {
-        println!("Could not connect to {}", con_str);
-    }
+    println!("{}", res.body);
 }
