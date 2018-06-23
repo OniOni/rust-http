@@ -2,6 +2,7 @@ use std::io::prelude::*;
 use std::env;
 use std::net::TcpStream;
 use std::collections::HashMap;
+use std::collections::LinkedList;
 
 struct HttpRequest {
     request: String,
@@ -111,11 +112,27 @@ impl HttpClient {
     }
 }
 
-fn get_cmd() -> String {
-    match env::args().nth(1) {
-        Some(cmd) => cmd,
-        None => String::from("_no_command")
+#[derive(Debug)]
+enum Arg {
+    Opt { val: String },
+    Val { val: String }
+}
+
+fn get_cmd() -> LinkedList<Arg> {
+
+    let mut args: LinkedList<Arg> = LinkedList::new();
+
+    for a in env::args() {
+        let arg = if a.starts_with('-') {
+            Arg::Opt { val: a }
+        } else {
+            Arg::Val { val: a }
+        };
+
+        args.push_back(arg);
     }
+
+    return args;
 }
 
 fn main() {
@@ -126,4 +143,7 @@ fn main() {
     let res = client.get("/response.json").unwrap();
 
     println!("{}", res.body);
+
+    let cmds = get_cmd();
+    println!("{:?}", cmds);
 }
