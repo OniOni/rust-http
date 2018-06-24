@@ -193,8 +193,8 @@ fn urlparse(url: &String) -> Url {
 
 #[derive(Debug)]
 enum Arg {
-    Opt { val: String },
-    Val { val: String }
+    Opt(String),
+    Val(String)
 }
 
 fn get_cmd() -> LinkedList<Arg> {
@@ -203,9 +203,9 @@ fn get_cmd() -> LinkedList<Arg> {
 
     for a in env::args() {
         let arg = if a.starts_with('-') {
-            Arg::Opt { val: a }
+            Arg::Opt(a)
         } else {
-            Arg::Val { val: a }
+            Arg::Val(a)
         };
 
         args.push_back(arg);
