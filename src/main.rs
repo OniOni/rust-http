@@ -71,7 +71,7 @@ impl HttpResponse {
                 break;
             }
 
-            let mut split = line.split(':');
+            let mut split = line.split(": ");
             headers.insert(
                 split.next().unwrap().to_string(),
                 split.next().unwrap().to_string()
