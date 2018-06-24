@@ -78,12 +78,15 @@ impl HttpResponse {
             );
         }
 
-        let body = lines.next().unwrap();
+        let mut body = String::new();
+        for l in lines {
+            body += l;
+        }
 
         return HttpResponse {
             status_line: status_line.to_string(),
             headers: headers,
-            body: body.to_string()
+            body: body
         }
     }
 }
