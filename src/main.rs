@@ -21,7 +21,7 @@ impl HttpRequest {
         let headers: HashMap<String, String> = HashMap::new();
         let mut http = HttpRequest { request: request, headers: headers, body: body };
 
-        http.add_header("User-Agent", "rust-http");
+        http.add_header("User-Agent", "rust-http/0.1");
 
         return http
     }
