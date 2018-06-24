@@ -221,14 +221,28 @@ fn get_cmd() -> LinkedList<Arg> {
 }
 
 fn main() {
-    let client = HttpClient {
-        host: "127.0.0.1".to_string(),
-        port: "8080".to_string()
-    };
-    let res = client.get("/response.json").unwrap();
-
-    println!("{}", res.body);
-
     let cmds = get_cmd();
-    println!("{:?}", cmds);
+
+    match cmds.iter().nth(1) {
+        Some(x) => {
+            match x {
+                Arg::Val(x) => {
+                    let url = urlparse(x);
+                    let client = HttpClient {
+                        host: url.netloc.unwrap(),
+                        port: url.port.unwrap_or(String::from("80"))
+                    };
+                    let res = client.get(&url.path.unwrap_or(String::from("/"))).unwrap();
+
+                    for l in res.body.lines() {
+                        println!("{}", l);
+                    }
+                },
+                _ => eprintln!("Looking for value not option.")
+            }
+        },
+        None => {
+            eprintln!("Need at leat and url.")
+        }
+    }
 }
