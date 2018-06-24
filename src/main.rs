@@ -99,7 +99,10 @@ struct HttpClient {
 impl HttpClient {
 
     fn get(&self, path: &str) -> Result<HttpResponse, String> {
-        let req = HttpRequest::new(String::from("GET ") + path +" HTTP/1.1", "".to_string());
+        let mut req = HttpRequest::new(String::from("GET ") + path +" HTTP/1.1", "".to_string());
+
+        req.add_header("Accept", "*/*");
+        req.add_header("Host", self.host.as_str());
 
         let constr = String::from("") + &self.host + ":" + &self.port;
         if let Ok(mut stream) = TcpStream::connect(&constr) {
